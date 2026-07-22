@@ -1,42 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Credit Card Payoff Calculator – How Long to Clear Your Balance? | Tabutility</title>
+  <meta name="description" content="Free credit card payoff calculator. Find out how long it takes to clear your balance, total interest paid, and compare vs minimum payments. Month-by-month schedule included." />
+  <meta name="keywords" content="credit card payoff calculator, how long to pay off credit card, credit card interest calculator, minimum payment calculator, debt free date" />
+  <link rel="canonical" href="https://credit-card-payoff-calculator.tabutility.com/" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-78VZWJ5B1W"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-78VZWJ5B1W');</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7039091592734005" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>*{margin:0;padding:0;box-sizing:border-box;}body{background:#f0f4ff;}.site-nav{background:#1a1a2e;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;}.site-nav a{color:#a5b4fc;text-decoration:none;font-size:14px;font-family:'Segoe UI',Arial,sans-serif;}.nav-brand{color:#fff;font-weight:700;font-size:16px;font-family:'Segoe UI',Arial,sans-serif;}#ad-top,#ad-bottom{text-align:center;padding:10px;background:#fff;}</style>
+</head>
+<body>
+  <nav class="site-nav"><span class="nav-brand">⚡ Tabutility</span><a href="https://tabutility.com">← All Tools</a></nav>
+  <div id="ad-top"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7039091592734005" data-ad-slot="auto" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+  <div id="root"></div>
+  <div id="ad-bottom"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7039091592734005" data-ad-slot="auto" data-ad-format="rectangle" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+  <script type="text/babel">
+    //<![CDATA[
+    const { useState } = React;
 
-    <!-- ✏️ UPDATE THESE FOR EVERY NEW TOOL -->
-    <title>TOOL NAME — TOOL TAGLINE | Tabutility</title>
-    <meta name="description" content="TOOL DESCRIPTION. No sign-up, runs in your browser." />
-    <meta name="keywords" content="KEYWORD 1, KEYWORD 2, KEYWORD 3, free TOOL NAME" />
-    <link rel="canonical" href="https://SUBDOMAIN.tabutility.com/" />
-    <meta property="og:url" content="https://SUBDOMAIN.tabutility.com/" />
-    <meta property="og:title" content="TOOL NAME — TOOL TAGLINE" />
-    <meta property="og:description" content="TOOL DESCRIPTION. Free, no sign-up." />
-    <meta name="twitter:title" content="TOOL NAME — TOOL TAGLINE" />
-    <meta name="twitter:description" content="TOOL DESCRIPTION. Free, no sign-up." />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>EMOJI</text></svg>" />
-    <!-- ✏️ END OF SECTION TO UPDATE -->
+    function calcPayoff(balance, apr, monthlyPayment) {
+      const r = apr / 100 / 12;
+      let b = balance, months = 0, totalInterest = 0;
+      const schedule = [];
+      while (b > 0.005 && months < 600) {
+        const interest = b * r;
+        totalInterest += interest;
+        b = b + interest - monthlyPayment;
+        months++;
+        if (months <= 24) schedule.push({ month: months, interest, principal: monthlyPayment - interest, balance: Math.max(0, b) });
+        if (b <= 0) break;
+      }
+      return { months, totalInterest, totalPaid: monthlyPayment * months, schedule, paidOff: b <= 0.005 };
+    }
 
-    <!-- DO NOT CHANGE ANYTHING BELOW THIS LINE -->
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Tabutility" />
-    <meta name="twitter:card" content="summary" />
-    <meta name="robots" content="index, follow" />
+    const fmt = (n,sym) => sym + Math.abs(Math.round(n)).toLocaleString();
+    const fmtDec = (n,sym) => sym + Math.abs(n).toLocaleString("en-GB",{minimumFractionDigits:2,maximumFractionDigits:2});
 
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7039091592734005" crossorigin="anonymous"></script>
+    function CreditCardPayoff() {
+      const [currency, setCurrency] = useState("gbp");
+      const [balance, setBalance] = useState("5000");
+      const [apr, setApr] = useState("22.9");
+      const [mode, setMode] = useState("payment");
+      const [monthlyPayment, setMonthlyPayment] = useState("150");
+      const [targetMonths, setTargetMonths] = useState("36");
+      const [result, setResult] = useState(null);
 
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-78VZWJ5B1W"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-78VZWJ5B1W');
-    </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+      const sym = currency === "gbp" ? "£" : "$";
+
+      const calculate = () => {
+        const b = parseFloat(balance)||0;
+        const rate = parseFloat(apr)||0;
+        const r = rate / 100 / 12;
+        let payment;
+        if (mode === "months") {
+          const n = parseFloat(targetMonths)||36;
+          payment = r > 0 ? b * r / (1 - Math.pow(1 + r, -n)) : b / n;
+        } else {
+          payment = parseFloat(monthlyPayment)||0;
+        }
+        if (payment <= b * r && r > 0) { setResult({ error: true, minNeeded: b * r + 0.01 }); return; }
+        const primary = calcPayoff(b, rate, payment);
+        const minPmt = Math.max(b * r + 1, b * 0.02);
+        const minimum = minPmt < payment ? calcPayoff(b, rate, minPmt) : null;
+        setResult({ b, rate, payment, primary, minimum, minPmt });
+      };
+
+      const inputStyle = { width:"100%",padding:"12px",border:"2px solid #e0e7ff",borderRadius:10,fontSize:16,boxSizing:"border-box",outline:"none" };
+      const labelStyle = { display:"block",fontWeight:600,marginBottom:6,color:"#333" };
+
+      return (
+        <div style={{ fontFamily:"'Segoe UI',Arial,sans-serif",background:"#f0f4ff",minHeight:"100vh",padding:"20px" }}>
+          <div style={{ maxWidth:820,margin:"0 auto" }}>
+            <div style={{ textAlign:"center",marginBottom:32 }}>
+              <div style={{ fontSize:48,marginBottom:8 }}>💳</div>
+              <h1 style={{ margin:0,fontSize:32,fontWeight:800,color:"#1a1a2e" }}>Credit Card Payoff Calculator</h1>
+              <p style={{ margin:"8px 0 0",color:"#555",fontSize:16 }}>Find out how long to clear your balance and how much interest you'll pay</p>
+            </div>
+            <div style={{ background:"#fff",borderRadius:16,padding:28,boxShadow:"0 4px 24px rgba(0,0,0,0.08)",marginBottom:24 }}>
+              <div style={{ display:"flex",gap:8,marginBottom:20 }}>
+                {[["gbp","£ GBP"],["usd","$ USD"]].map(([v,l])=>(
+                  <button key={v} onClick={()=>setCurrency(v)} style={{ padding:"8px 20px",borderRadius:8,border:`2px solid ${currency===v?"#3b5bdb":"#e0e7ff"}`,background:currency===v?"#3b5bdb":"#fff",color:currency===v?"#fff":"#333",fontWeight:600,cursor:"pointer" }}>{l}</button>
+                ))}
+              </div>
+              <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(200px,1fr))",gap:20,marginBottom:20 }}>
+                <div>
+                  <label style={labelStyle}>Current Balance ({sym})</label>
+                  <div style={{ position:"relative" }}><span style={{ position:"absolute",left:12,top:"50%",transform:"translateY(-50%)",color:"#666",fontWeight:600 }}>{sym}</span><input type="number" value={balance} onChange={e=>setBalance(e.target.value)} style={{...inputStyle,paddingLeft:28}} /></div>
+                </div>
+                <div>
+                  <label style={labelStyle}>Annual Interest Rate (APR %)</label>
+                  <div style={{ position:"relative" }}><input type="number" value={apr} onChange={e=>setApr(e.target.value)} style={{...inputStyle,paddingRight:32}} /><span style={{ position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",color:"#666" }}>%</span></div>
+                </div>
+              </div>
+              <div style={{ marginBottom:20 }}>
+                <label style={labelStyle}>I want to enter my</label>
+                <div style={{ display:"flex",gap:8 }}>
+                  {[["payment","Monthly Payment"],["months","Target Payoff Time"]].map(([v,l])=>(
+                    <button key={v} onClick={()=>setMode(v)} style={{ padding:"10px 18px",borderRadius:10,border:`2px solid ${mode===v?"#3b5bdb":"#e0e7ff"}`,background:mode===v?"#3b5bdb":"#fff",color:mode===v?"#fff":"#333",fontWeight:600,cursor:"pointer",fontSize:14 }}>{l}</button>
+                  ))}
+                </div>
+              </div>
+              {mode === "payment" ? (
+                <div><label style={labelStyle}>Monthly Payment ({sym})</label><div style={{ position:"relative" }}><span style={{ position:"absolute",left:12,top:"50%",transform:"translateY(-50%)",color:"#666",fontWeight:600 }}>{sym}</span><input type="number" value={monthlyPayment} onChange={e=>setMonthlyPayment(e.target.value)} style={{...inputStyle,paddingLeft:28}} /></div></div>
+              ) : (
+                <div><label style={labelStyle}>Target Months to Pay Off</label><div style={{ position:"relative" }}><input type="number" value={targetMonths} onChange={e=>setTargetMonths(e.target.value)} style={{...inputStyle,paddingRight:70}} /><span style={{ position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",color:"#666" }}>months</span></div></div>
+              )}
+              <button onClick={calculate} style={{ width:"100%",marginTop:24,padding:"16px",background:"linear-gradient(135deg, #3b5bdb, #1971c2)",color:"#fff",border:"none",borderRadius:12,fontSize:18,fontWeight:700,cursor:"pointer" }}>Calculate Payoff</button>
+            </div>
+            {result && result.error && (
+              <div style={{ background:"#fff5f5",border:"2px solid #e03131",borderRadius:12,padding:20,color:"#e03131",fontWeight:600 }}>
+                ⚠️ Your monthly payment doesn't cover the monthly interest. You need at least {sym}{result.minNeeded.toFixed(2)}/month to reduce the balance.
+              </div>
+            )}
+            {result && !result.error && <>
+              <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(160px,1fr))",gap:16,marginBottom:24 }}>
+                {[
+                  { label:"Monthly Payment", value:fmtDec(result.payment,sym), color:"#3b5bdb", bg:"#eef2ff" },
+                  { label:"Payoff Time", value:result.primary.paidOff?`${result.primary.months} months`:"50yr+", color:"#2f9e44", bg:"#ebfbee" },
+                  { label:"Total Interest", value:fmt(result.primary.totalInterest,sym), color:"#e03131", bg:"#fff5f5" },
+                  { label:"Total Paid", value:fmt(result.primary.totalPaid,sym), color:"#e67700", bg:"#fff9db" },
+                ].map((item,i)=>(
+                  <div key={i} style={{ background:item.bg,borderRadius:14,padding:18,textAlign:"center",border:`2px solid ${item.color}22` }}>
+                    <div style={{ fontSize:22,fontWeight:800,color:item.color }}>{item.value}</div>
+                    <div style={{ fontSize:12,color:"#555",marginTop:4,fontWeight:500 }}>{item.label}</div>
+                  </div>
+                ))}
+              </div>
+              {result.minimum && (
+                <div style={{ background:"#fff9db",border:"1px solid #ffd43b",borderRadius:14,padding:20,marginBottom:24 }}>
+                  <h4 style={{ margin:"0 0 12px",color:"#664d03" }}>⚠️ If you only paid the minimum (~{fmtDec(result.minPmt,sym)}/mo):</h4>
+                  <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,fontSize:13 }}>
+                    <div><div style={{ color:"#888" }}>Payoff time</div><div style={{ fontWeight:700,color:"#e03131" }}>{result.minimum.paidOff?`${Math.round(result.minimum.months/12)} years`:"Never"}</div></div>
+                    <div><div style={{ color:"#888" }}>Extra interest</div><div style={{ fontWeight:700,color:"#e03131" }}>{fmt(result.minimum.totalInterest-result.primary.totalInterest,sym)}</div></div>
+                    <div><div style={{ color:"#888" }}>Extra time</div><div style={{ fontWeight:700,color:"#e03131" }}>{result.minimum.paidOff?`${result.minimum.months-result.primary.months} months more`:"∞"}</div></div>
+                  </div>
+                </div>
+              )}
+              {result.primary.schedule.length > 0 && (
+                <div style={{ background:"#fff",borderRadius:16,padding:24,boxShadow:"0 2px 12px rgba(0,0,0,0.06)",marginBottom:24 }}>
+                  <h3 style={{ margin:"0 0 16px",fontSize:16,fontWeight:700 }}>📊 Repayment Schedule (first 24 months)</h3>
+                  <div style={{ overflowX:"auto" }}>
+                    <table style={{ width:"100%",borderCollapse:"collapse",fontSize:13 }}>
+                      <thead><tr style={{ background:"#eef2ff" }}>{["Month","Interest","Principal","Remaining Balance"].map(h=><th key={h} style={{ padding:"9px 12px",textAlign:"left",fontWeight:700 }}>{h}</th>)}</tr></thead>
+                      <tbody>{result.primary.schedule.map((row,i)=>(
+                        <tr key={i} style={{ borderBottom:"1px solid #f1f3f5",background:i%2===0?"#fff":"#fafafa" }}>
+                          <td style={{ padding:"8px 12px",fontWeight:600 }}>{row.month}</td>
+                          <td style={{ padding:"8px 12px",color:"#e03131" }}>{fmtDec(row.interest,sym)}</td>
+                          <td style={{ padding:"8px 12px",color:"#2f9e44" }}>{fmtDec(Math.max(0,row.principal),sym)}</td>
+                          <td style={{ padding:"8px 12px",color:"#3b5bdb",fontWeight:600 }}>{fmt(row.balance,sym)}</td>
+                        </tr>
+                      ))}</tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </>}
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<CreditCardPayoff />);
+    //]]>
+  </script>
+</body>
 </html>
