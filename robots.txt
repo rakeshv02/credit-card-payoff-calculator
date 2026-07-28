@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://credit-card-payoff-calculator.tabutility.com/sitemap.xml
