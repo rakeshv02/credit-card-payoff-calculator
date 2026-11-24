@@ -38,6 +38,7 @@
 nav .brand{color:#fff}
 nav a:hover{color:#818cf8}
 input:focus,select:focus,textarea:focus{border-color:#818cf8!important}
+input[type="number"],select,button{min-height:44px;box-sizing:border-box}
 </style>
 <link rel="dns-prefetch" href="//unpkg.com">
 <script type="application/ld+json">
@@ -62,6 +63,7 @@ input:focus,select:focus,textarea:focus{border-color:#818cf8!important}
     }
     </script>
       <meta name="robots" content="noindex, follow">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7039091592734005" crossorigin="anonymous"></script>
 </head>
 <body>
   <nav class="site-nav"><span class="nav-brand">⚡ Tabutility</span><a href="https://tabutility.com">← All Tools</a></nav>
@@ -74,17 +76,19 @@ input:focus,select:focus,textarea:focus{border-color:#818cf8!important}
 
     function calcPayoff(balance, apr, monthlyPayment) {
       const r = apr / 100 / 12;
-      let b = balance, months = 0, totalInterest = 0;
+      let b = balance, months = 0, totalInterest = 0, totalPaid = 0;
       const schedule = [];
       while (b > 0.005 && months < 600) {
         const interest = b * r;
         totalInterest += interest;
-        b = b + interest - monthlyPayment;
+        const actualPayment = Math.min(monthlyPayment, b + interest);
+        totalPaid += actualPayment;
+        b = Math.max(0, b + interest - actualPayment);
         months++;
-        if (months <= 24) schedule.push({ month: months, interest, principal: monthlyPayment - interest, balance: Math.max(0, b) });
+        if (months <= 24) schedule.push({ month: months, interest, principal: actualPayment - interest, balance: b });
         if (b <= 0) break;
       }
-      return { months, totalInterest, totalPaid: monthlyPayment * months, schedule, paidOff: b <= 0.005 };
+      return { months, totalInterest, totalPaid, schedule, paidOff: b <= 0.005 };
     }
 
     const fmt = (n,sym) => sym + Math.abs(Math.round(n)).toLocaleString();
@@ -104,14 +108,20 @@ input:focus,select:focus,textarea:focus{border-color:#818cf8!important}
       const calculate = () => {
         const b = parseFloat(balance)||0;
         const rate = parseFloat(apr)||0;
+        const target = Number(targetMonths);
+        if (![b, rate].every(Number.isFinite) || b <= 0 || rate < 0 || (mode === "months" && (!Number.isInteger(target) || target < 1 || target > 600))) {
+          alert('Enter a positive balance, non-negative APR, and a target of 1–600 whole months.');
+          return;
+        }
         const r = rate / 100 / 12;
         let payment;
         if (mode === "months") {
-          const n = parseFloat(targetMonths)||36;
+          const n = target;
           payment = r > 0 ? b * r / (1 - Math.pow(1 + r, -n)) : b / n;
         } else {
           payment = parseFloat(monthlyPayment)||0;
         }
+        if (!Number.isFinite(payment) || payment <= 0) { alert('Enter a monthly payment greater than zero.'); return; }
         if (payment <= b * r && r > 0) { setResult({ error: true, minNeeded: b * r + 0.01 }); return; }
         const primary = calcPayoff(b, rate, payment);
         const minPmt = Math.max(b * r + 1, b * 0.02);
@@ -182,11 +192,12 @@ input:focus,select:focus,textarea:focus{border-color:#818cf8!important}
               </div>
               {result.minimum && (
                 <div style={{ background:"#fff9db",border:"1px solid #ffd43b",borderRadius:14,padding:20,marginBottom:24 }}>
-                  <h4 style={{ margin:"0 0 12px",color:"#664d03" }}>⚠️ If you only paid the minimum (~{fmtDec(result.minPmt,sym)}/mo):</h4>
-                  <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,fontSize:13 }}>
-                    <div><div style={{ color:"#888" }}>Payoff time</div><div style={{ fontWeight:700,color:"#e03131" }}>{result.minimum.paidOff?`${Math.round(result.minimum.months/12)} years`:"Never"}</div></div>
+                  <h4 style={{ margin:"0 0 12px",color:"#664d03" }}>Illustrative smaller fixed payment: {fmtDec(result.minPmt,sym)}/mo</h4>
+                  <p style={{fontSize:13}}>Held constant throughout repayment. This is not your issuer's changing minimum-payment schedule. No new spending or fees are included.</p>
+                  <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(min(100%,160px),1fr))",gap:12,fontSize:13 }}>
+                    <div><div style={{ color:"#888" }}>Payoff time</div><div style={{ fontWeight:700,color:"#e03131" }}>{result.minimum.paidOff?`${result.minimum.months} months`:"More than 50 years"}</div></div>
                     <div><div style={{ color:"#888" }}>Extra interest</div><div style={{ fontWeight:700,color:"#e03131" }}>{fmt(result.minimum.totalInterest-result.primary.totalInterest,sym)}</div></div>
-                    <div><div style={{ color:"#888" }}>Extra time</div><div style={{ fontWeight:700,color:"#e03131" }}>{result.minimum.paidOff?`${result.minimum.months-result.primary.months} months more`:"∞"}</div></div>
+                    <div><div style={{ color:"#888" }}>Extra time</div><div style={{ fontWeight:700,color:"#e03131" }}>{result.minimum.paidOff?`${result.minimum.months-result.primary.months} months more`:"Beyond 600-month model limit"}</div></div>
                   </div>
                 </div>
               )}
@@ -282,7 +293,7 @@ input:focus,select:focus,textarea:focus{border-color:#818cf8!important}
 </div>
 <footer style="background:#1a1a2e;margin-top:48px;padding:28px 24px;text-align:center;font-family:'Segoe UI',system-ui,Arial,sans-serif;font-size:13px;color:#94a3b8;line-height:1.8">
 <div style="font-weight:700;color:#fff;font-size:15px">⚡ Tabutility</div>
-<div>Free, private, browser-based tools. No sign-up, no tracking.</div>
+<div>Free, browser-based tools. No sign-up. Advertising and analytics are explained in our privacy policy.</div>
 <div style="margin-top:6px"><a href="https://tabutility.com" style="color:#818cf8;font-weight:600;text-decoration:none">All Tools</a> · <a href="https://tabutility.com/blog/" style="color:#94a3b8;text-decoration:none">Blog</a> · <a href="https://tabutility.com/about/" style="color:#94a3b8;text-decoration:none">About</a> · <a href="https://tabutility.com/privacy-policy/" style="color:#94a3b8;text-decoration:none">Privacy</a> · <a href="https://tabutility.com/contact/" style="color:#94a3b8;text-decoration:none">Contact</a></div>
 <div style="margin-top:6px;color:#64748b">© 2026 Tabutility</div>
 
@@ -297,10 +308,10 @@ input:focus,select:focus,textarea:focus{border-color:#818cf8!important}
         <h3 style="font-size:1.2rem;font-weight:600;color:#f1f5f9;margin-bottom:16px;">📊 Worked Example</h3>
         <p style="color:#94a3b8;margin:0 0 12px;">$3,500 balance at 22% APR:</p>
         <ul style="list-style:none;padding:0;margin:0;color:#cbd5e1;">
-          <li style="padding:6px 0;border-bottom:1px solid #1e293b;">Minimum payment only (~2%): <strong style="color:#f87171;">29+ years, $5,800 interest</strong></li>
-          <li style="padding:6px 0;border-bottom:1px solid #1e293b;">Fixed $100/month: <strong style="color:#f1f5f9;">4.5 years, $1,890 interest</strong></li>
-          <li style="padding:6px 0;border-bottom:1px solid #1e293b;">Fixed $200/month: <strong style="color:#34d399;">1.9 years, $827 interest</strong></li>
-          <li style="padding:6px 0;">Fixed $350/month: <strong style="color:#34d399;">11 months, $428 interest</strong></li>
+          <li style="padding:6px 0;border-bottom:1px solid #1e293b;">Illustration assumes fixed payments, monthly interest, no new spending and no fees.</li>
+          <li style="padding:6px 0;border-bottom:1px solid #1e293b;">Fixed $100/month: <strong style="color:#f1f5f9;">57 months, $2,149.34 interest</strong></li>
+          <li style="padding:6px 0;border-bottom:1px solid #1e293b;">Fixed $200/month: <strong style="color:#34d399;">22 months, $759.55 interest</strong></li>
+          <li style="padding:6px 0;">Fixed $350/month: <strong style="color:#34d399;">12 months, $402.11 interest</strong></li>
         </ul>
       </div>
 
